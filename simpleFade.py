@@ -6,13 +6,10 @@ import colorsys
 import math
 import os
 
-
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
-
 block_color = (53, 115, 255)
-
 
 class ColorWheel:
 
@@ -82,6 +79,8 @@ class ColorWheel:
         else:
             raise ValueError('The input caused the saturation to be out of bounds')
 
+    def getRGB8(self, coords):
+        return [int(round(i * 255, 0)) for i in self.getRGBFloats(coords)]
 
 class TextObject:
 
@@ -135,6 +134,13 @@ class ColorCheckerApp:
         self.greenValue = TextObject(self.display.getGameDisplay(), 'Green: ', 5, 30, initialValue=0)
         self.blueValue = TextObject(self.display.getGameDisplay(), 'Blue: ', 5, 55, initialValue=0)
 
+    def showAll(self):
+        self.colorWheel.show()
+        self.redValue.show()
+        self.greenValue.show()
+        self.blueValue.show()
+
+
     def loop(self):
         while 1:
 
@@ -150,17 +156,20 @@ class ColorCheckerApp:
                     pos = pygame.mouse.get_pos()
                     print(pos)
                     if self.colorWheel.isInWheel(pos):
-                        print(self.colorWheel.getRGBFloats(pos))
+                        rgb = self.colorWheel.getRGB8(pos)
+                        print(rgb)
+                        self.redValue.updateValue(rgb[0])
+                        self.greenValue.updateValue(rgb[1])
+                        self.blueValue.updateValue(rgb[2])
 
             self.display.getGameDisplay().fill(white)
 
             pygame.display.update()
             self.display.getClock().tick(60)
 
-            self.colorWheel.show()
-            self.redValue.show()
-            self.greenValue.show()
-            self.blueValue.show()
+            self.showAll()
+
+
 
 
 
