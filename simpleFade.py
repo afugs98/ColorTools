@@ -69,20 +69,18 @@ class ColorWheel:
 
         return False
 
-    def getRGB(self, coords):
+    def getRGBFloats(self, coords):
 
-        rx = coords[0] - self.center[0] + self.xPos
-        ry = coords[1] - self.center[1] + self.yPos
-        s = ((coords[0] - self.center[0] + self.xPos) ** 2.0 + (coords[1] - self.center[1] + self.yPos) ** 2.0) ** 0.5 / self.radius
+        rx = coords[0] - self.center[0]
+        ry = coords[1] - self.center[1]
+        s = ((coords[0] - self.center[0]) ** 2.0 + (coords[1] - self.center[1]) ** 2.0) ** 0.5 / self.radius
+
         if s <= 1.0:
             h = ((math.atan2(ry, rx) / math.pi + math.pi) + 1.0) / 2.0
 
             return colorsys.hsv_to_rgb(h, s, 1.0)
-
         else:
-            print("Got a probelm")
-
-
+            raise ValueError('The input caused the saturation to be out of bounds')
 
 
 class TextObject:
@@ -152,7 +150,7 @@ class ColorCheckerApp:
                     pos = pygame.mouse.get_pos()
                     print(pos)
                     if self.colorWheel.isInWheel(pos):
-                        print(self.colorWheel.getRGB(pos))
+                        print(self.colorWheel.getRGBFloats(pos))
 
             self.display.getGameDisplay().fill(white)
 
