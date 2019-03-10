@@ -25,14 +25,14 @@ class ColorWheel:
 
         imageObject = Image.new("RGB", (self.sizeX, self.sizeY))
         self.radius = min(imageObject.size) / 2.0
-        self.center = self.sizeX / 2, self.sizeY / 2
+        self.center = (self.sizeX / 2 + self.xPos, self.sizeY / 2 + self.yPos)
         pix = imageObject.load()
 
         for x in range(self.sizeX):
             for y in range(self.sizeY):
-                rx = x - self.center[0]
-                ry = y - self.center[1]
-                s = ((x - self.center[0]) ** 2.0 + (y - self.center[1]) ** 2.0) ** 0.5 / self.radius
+                rx = x - self.center[0] + self.xPos
+                ry = y - self.center[1] + self.yPos
+                s = ((x - self.center[0] + self.xPos) ** 2.0 + (y - self.center[1] + self.yPos) ** 2.0) ** 0.5 / self.radius
                 if s <= 1.0:
                     h = ((math.atan2(ry, rx) / math.pi + math.pi) + 1.0) / 2.0
                     rgb = colorsys.hsv_to_rgb(h, s, 1.0)
@@ -60,7 +60,11 @@ class ColorWheel:
 
         return False
 
-    
+    def distanceToCenter(self, coords):
+        if not isinstance(coords, tuple):
+            raise ValueError('Fam this gotta be a tuple of coords')
+        else:
+            return (((self.center[0] - coords[0]) ** 2) + ((self.center[1] - coords[1]) ** 2) ** .5)
 
 
 class TextObject:
@@ -129,7 +133,8 @@ class ColorCheckerApp:
                     # This means that there was a click
                     pos = pygame.mouse.get_pos()
                     print(pos)
-                    print(self.colorWheel.isInBox(pos))
+                    if self.colorWheel.isInBox(pos):
+                        print(self.colorWheel.distanceToCenter(pos))
 
             self.display.getGameDisplay().fill(white)
 
