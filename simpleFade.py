@@ -144,19 +144,19 @@ class ColorCheckerApp:
     def loop(self):
         while 1:
 
+            # num = self.display.getClock().get_ticks()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-
-
                     pygame.quit()
                     quit()
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     # This means that there was a click
 
-                    # Get where teh click was
+                    # Get where the click was
                     pos = pygame.mouse.get_pos()
-                    print(pos)
+                    print(f"Pos: {pos}")
 
                     # Check if its inside the color wheel
                     if self.colorWheel.isInWheel(pos):
@@ -168,9 +168,11 @@ class ColorCheckerApp:
             self.display.getGameDisplay().fill(white)
 
             pygame.display.update()
-            self.display.getClock().tick(600)
+            self.display.getClock().tick()
 
             self.showAll()
+
+            # print(self.display.getClock().get_ticks() - num)
 
 
 
