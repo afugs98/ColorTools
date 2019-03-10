@@ -49,22 +49,40 @@ class ColorWheel:
     def show(self):
         self.gameDisplay.blit(self.getColorWheel(), (self.xPos, self.yPos))
 
-    def isInBox(self, coords):
+    def distanceToCenter(self, coords):
+        if not isinstance(coords, tuple):
+            raise ValueError('Fam this gotta be a tuple of coords')
+        else:
+            return ((((self.center[0] - coords[0]) ** 2) + ((self.center[1] - coords[1]) ** 2)) ** 0.5)
+
+    def isInWheel(self, coords):
         # This just checks to see if the passes point is in the box, returns bool
         if not isinstance(coords, tuple):
             raise ValueError('Fam this gotta be a tuple of coords')
         else:
             if(coords[0] <= self.sizeX + self.xPos and coords[0] > self.xPos):
                 if (coords[1] <= self.sizeY + self.yPos and coords[1] > self.yPos):
-                    return True
+
+                    # Now have to make sure that it is in the wheel, not just the box
+                    if self.distanceToCenter(coords) < self.radius:
+                        return True
 
         return False
 
-    def distanceToCenter(self, coords):
-        if not isinstance(coords, tuple):
-            raise ValueError('Fam this gotta be a tuple of coords')
+    def getRGB(self, coords):
+
+        rx = coords[0] - self.center[0] + self.xPos
+        ry = coords[1] - self.center[1] + self.yPos
+        s = ((coords[0] - self.center[0] + self.xPos) ** 2.0 + (coords[1] - self.center[1] + self.yPos) ** 2.0) ** 0.5 / self.radius
+        if s <= 1.0:
+            h = ((math.atan2(ry, rx) / math.pi + math.pi) + 1.0) / 2.0
+
+            return colorsys.hsv_to_rgb(h, s, 1.0)
+
         else:
-            return (((self.center[0] - coords[0]) ** 2) + ((self.center[1] - coords[1]) ** 2) ** .5)
+            print("Got a probelm")
+
+
 
 
 class TextObject:
@@ -133,8 +151,8 @@ class ColorCheckerApp:
                     # This means that there was a click
                     pos = pygame.mouse.get_pos()
                     print(pos)
-                    if self.colorWheel.isInBox(pos):
-                        print(self.colorWheel.distanceToCenter(pos))
+                    if self.colorWheel.isInWheel(pos):
+                        print(self.colorWheel.getRGB(pos))
 
             self.display.getGameDisplay().fill(white)
 
