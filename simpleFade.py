@@ -6,57 +6,66 @@ import colorsys
 import math
 import os
 
-def CreateColorWheel(sizeX, sizeY):
+class ColorWheel:
 
-    imageObject = Image.new("RGB", (sizeX, sizeY))
-    radius = min(imageObject.size) / 2.0
-    centre = imageObject.size[0] / 2, imageObject.size[1] / 2
-    pix = imageObject.load()
+    def __init__(self, sizeX, sizeY, xPos=0, yPos=0):
+        self.sizeX = sizeX
+        self.sizeY = sizeY
+        self.xPos = xPos
+        self.yPos = yPos
 
-    for x in range(imageObject.width):
-        for y in range(imageObject.height):
-            rx = x - centre[0]
-            ry = y - centre[1]
-            s = ((x - centre[0]) ** 2.0 + (y - centre[1]) ** 2.0) ** 0.5 / radius
-            if s <= 1.0:
-                h = ((math.atan2(ry, rx) / math.pi) + 1.0) / 2.0
-                rgb = colorsys.hsv_to_rgb(h, s, 1.0)
-                pix[x, y] = tuple([int(round(c * 255.0)) for c in rgb])
-            else:
-                pix[x, y] = (200, 200, 200)
+        imageObject = Image.new("RGB", (self.sizeX, self.sizeY))
+        radius = min(imageObject.size) / 2.0
+        center = imageObject.size[0] / 2, imageObject.size[1] / 2
+        pix = imageObject.load()
 
-    # im.show()
-    # Then at the end we need to convert this into something pygame can pick up
+        for x in range(imageObject.width):
+            for y in range(imageObject.height):
+                rx = x - center[0]
+                ry = y - center[1]
+                s = ((x - center[0]) ** 2.0 + (y - center[1]) ** 2.0) ** 0.5 / radius
+                if s <= 1.0:
+                    h = ((math.atan2(ry, rx) / math.pi + math.pi) + 1.0) / 2.0
+                    rgb = colorsys.hsv_to_rgb(h, s, 1.0)
+                    pix[x, y] = tuple([int(round(c * 255.0)) for c in rgb])
+                else:
+                    pix[x, y] = (200, 200, 200)
 
-    pygameImage = pygame.image.fromstring(imageObject.tobytes(), imageObject.size, imageObject.mode)
+        pygameImage = pygame.image.fromstring(imageObject.tobytes(), imageObject.size, imageObject.mode)
+        self.wheel = pygameImage
 
-    return pygameImage
-#
-# def colorWheel():
-#
-#     imageObject = Image.new("RGB", (300, 300))
-#     radius = min(imageObject.size) / 2.0
-#     centre = imageObject.size[0] / 2, imageObject.size[1] / 2
-#     pix = imageObject.load()
-#
-#     for x in range(imageObject.width):
-#         for y in range(imageObject.height):
-#             rx = x - centre[0]
-#             ry = y - centre[1]
-#             s = ((x - centre[0]) ** 2.0 + (y - centre[1]) ** 2.0) ** 0.5 / radius
-#             if s <= 1.0:
-#                 h = ((math.atan2(ry, rx) / math.pi) + 1.0) / 2.0
-#                 rgb = colorsys.hsv_to_rgb(h, s, 1.0)
-#                 pix[x, y] = tuple([int(round(c * 255.0)) for c in rgb])
-#             else:
-#                 pix[x, y] = (200, 200, 200)
-#
-#     # im.show()
-#     # Then at the end we need to convert this into something pygame can pick up
-#
-#     pygameImage = pygame.image.fromstring(imageObject.tobytes(), imageObject.size, imageObject.mode)
-#
-#     return pygameImage
+    def getColorWheel(self):
+        return self.wheel
+
+    def show(self):
+        gameDisplay.blit(pygameColorWheel.getColorWheel(), (self.xPos, self.yPos))
+
+
+class TextObject:
+
+    def __init__(self, displayText, xPos, yPos, size=25, initialValue=0):
+        self.xPos = xPos
+        self.yPos = yPos
+        self.displayText = displayText
+        self.font = pygame.font.SysFont(None, size)
+        self.value = initialValue
+
+    def updateText(self, newTextWords):
+        if not isinstance(newTextWords, str):
+            raise ValueError('Hey fam that needs to be a string')
+        else:
+            self.displayText = newTextWords
+
+    def show(self):
+        text = self.font.render(self.displayText + str(self.value), True, black)
+        gameDisplay.blit(text, (self.xPos, self.yPos))
+        pygame.display.update()
+
+    def updateValue(self, value):
+        self.value = value
+
+
+
 
 pygame.init()
 
@@ -73,56 +82,14 @@ gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Color visualizer')
 clock = pygame.time.Clock()
 
-pygameColorWheel = CreateColorWheel(400, 400)
 
 
-def DisplayPixelCounts(count):
-    font = pygame.font.SysFont(None, 25)
-    text = font.render("Pixels: " + str(count), True, black)
-    gameDisplay.blit(text, (5, 5))
-    pygame.display.update()
 
-def DisplayPosX(count):
-    font = pygame.font.SysFont(None, 25)
-    text = font.render("X: " + str(count), True, black)
-    gameDisplay.blit(text, (5, 30))
-    pygame.display.update()
+pygameColorWheel = ColorWheel(400, 400)
+redValue = TextObject('Red: ', 5, 5, initialValue=0)
+greenValue = TextObject('Green: ', 5, 30, initialValue=0)
+blueValue = TextObject('Blue: ', 5, 55, initialValue=0)
 
-def DisplayPosY(count):
-    font = pygame.font.SysFont(None, 25)
-    text = font.render("Y: " + str(count), True, black)
-    gameDisplay.blit(text, (5, 55))
-    pygame.display.update()
-
-
-# def things(thingx, thingy, thingw, thingh, color):
-#     pygame.draw.rect(gameDisplay, color, [thingx, thingy, thingw, thingh])
-
-
-def DisplayWheel():
-    gameDisplay.blit(pygameColorWheel, (100, 100))
-
-
-# def text_objects(text, font):
-#     textSurface = font.render(text, True, black)
-#     return textSurface, textSurface.get_rect()
-#
-#
-# def message_display(text):
-#     largeText = pygame.font.Font('freesansbold.ttf', 115)
-#     TextSurf, TextRect = text_objects(text, largeText)
-#     TextRect.center = ((display_width / 2), (display_height / 2))
-#     gameDisplay.blit(TextSurf, TextRect)
-#
-#     pygame.display.update()
-#
-#     time.sleep(200)
-#
-#     game_loop()
-
-
-# def crash():
-#     message_display('You Crashed')
 
 def game_loop():
     x = (display_width * 0.45)
@@ -138,22 +105,18 @@ def game_loop():
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 print(pos)
-                DisplayPosX(pos[0])
-                DisplayPosY(pos[1])
-
-                # get a list of all sprites that are under the mouse cursor
-                # clicked_sprites = [s for s in sprites if s.rect.collidepoint(pos)]
 
         gameDisplay.fill(white)
 
-        DisplayPixelCounts(27)
-        DisplayPosX(12)
-        DisplayPosY(14)
-
-        DisplayWheel()
 
         pygame.display.update()
         clock.tick(60)
+
+        pygameColorWheel.show()
+        redValue.show()
+        greenValue.show()
+        blueValue.show()
+
 
 
 def RunApp():
@@ -161,6 +124,8 @@ def RunApp():
     game_loop()
     pygame.quit()
     quit()
+
+
 
 
 RunApp() # This is the actual call that calls the rest of the code
